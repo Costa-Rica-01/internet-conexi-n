@@ -1,13 +1,655 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Redirección a Brave Search</title>
-  <meta http-equiv="refresh" content="0; url=https://search.brave.com/?lang=es">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🐍 SNAKE NEON</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font: Orbitron & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #05050d;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+        /* Neon Glow Effects */
+        .neon-text-green {
+            text-shadow: 0 0 5px #00ff88, 0 0 15px #00ff88, 0 0 30px #00ff88;
+        }
+        .neon-text-cyan {
+            text-shadow: 0 0 5px #00f0ff, 0 0 15px #00f0ff, 0 0 30px #00f0ff;
+        }
+        .neon-text-pink {
+            text-shadow: 0 0 5px #ff007f, 0 0 15px #ff007f, 0 0 30px #ff007f;
+        }
+        .neon-border-cyan {
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4), inset 0 0 15px rgba(0, 240, 255, 0.2);
+            border-color: #00f0ff;
+        }
+        .neon-btn {
+            transition: all 0.2s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+        .neon-btn:active, .neon-btn:hover {
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.8), 0 0 30px rgba(0, 255, 136, 0.4);
+            transform: translateY(-2px);
+        }
+        .neon-btn-pink {
+            box-shadow: 0 0 10px rgba(255, 0, 127, 0.3);
+        }
+        .neon-btn-pink:active, .neon-btn-pink:hover {
+            box-shadow: 0 0 20px rgba(255, 0, 127, 0.8), 0 0 30px rgba(255, 0, 127, 0.4);
+            transform: translateY(-2px);
+        }
+        /* Canvas container shadow */
+        .canvas-glow {
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.25), inset 0 0 15px rgba(0, 0, 0, 0.8);
+        }
+        /* D-Pad Buttons */
+        .dpad-btn {
+            background: linear-gradient(145deg, #121324, #0a0b14);
+            border: 2px solid #00f0ff;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+            color: #00f0ff;
+        }
+        .dpad-btn:active {
+            background: #00f0ff;
+            color: #05050d;
+            box-shadow: 0 0 20px #00f0ff;
+            transform: scale(0.92);
+        }
+    </style>
 </head>
-<body>
-  <p> 
-     <a href="https://search.brave.com/?lang=es"></a>
-  </p>
+<body class="min-h-screen flex flex-col items-center justify-between p-3 sm:p-5 select-none bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-purple-950 to-black">
+
+    <!-- Header Section -->
+    <header class="text-center my-2">
+        <h1 class="text-3xl sm:text-5xl font-extrabold font-orbitron tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-cyan-400 to-pink-500 neon-text-green">
+            🐍 SNAKE NEON
+        </h1>
+        <p class="text-xs sm:text-sm text-cyan-300 tracking-wide font-medium mt-1 opacity-90">
+            Versión bonita y fácil • Atraviesa paredes
+        </p>
+    </header>
+
+    <!-- Main Container -->
+    <main class="w-full max-w-md flex flex-col items-center gap-3">
+
+        <!-- Scoreboard -->
+        <div class="w-full grid grid-cols-3 gap-2 bg-slate-900/80 backdrop-blur border border-cyan-500/40 rounded-2xl p-2.5 text-center shadow-lg font-orbitron">
+            <div class="flex flex-col">
+                <span class="text-[10px] sm:text-xs text-slate-400 font-semibold tracking-wider">SCORE</span>
+                <span id="score" class="text-xl sm:text-2xl font-bold text-green-400 neon-text-green">0</span>
+            </div>
+            <div class="flex flex-col border-x border-slate-700/60">
+                <span class="text-[10px] sm:text-xs text-slate-400 font-semibold tracking-wider">RECORD</span>
+                <span id="record" class="text-xl sm:text-2xl font-bold text-yellow-400">0</span>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-[10px] sm:text-xs text-slate-400 font-semibold tracking-wider">NIVEL</span>
+                <span id="level" class="text-xl sm:text-2xl font-bold text-pink-400 neon-text-pink">1</span>
+            </div>
+        </div>
+
+        <!-- Mode Controls & Pause -->
+        <div class="w-full flex items-center justify-between gap-2 text-xs font-semibold">
+            <div class="flex items-center bg-slate-900/80 p-1 rounded-xl border border-slate-800">
+                <button id="btnEasy" onclick="setDifficulty('easy')" class="px-3 py-1.5 rounded-lg transition-all text-green-400 bg-green-950/60 border border-green-500/50 shadow">
+                    🐢 Fácil
+                </button>
+                <button id="btnNormal" onclick="setDifficulty('normal')" class="px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-cyan-300">
+                    ⚡ Normal
+                </button>
+            </div>
+
+            <button id="btnPause" onclick="togglePause()" class="px-4 py-1.5 rounded-xl bg-slate-900/90 border border-cyan-500/50 text-cyan-300 hover:bg-cyan-950/50 active:scale-95 transition-all flex items-center gap-1">
+                <span id="pauseIcon">⏸️</span> <span id="pauseText">Pausa</span>
+            </button>
+        </div>
+
+        <!-- Game Screen Wrap -->
+        <div class="relative w-full aspect-square max-w-[400px] bg-slate-950 rounded-2xl border-2 border-cyan-500/60 canvas-glow overflow-hidden">
+            <!-- Canvas -->
+            <canvas id="gameCanvas" class="w-full h-full block rounded-2xl"></canvas>
+
+            <!-- Overlay Start/Game Over Modal -->
+            <div id="startOverlay" class="absolute inset-0 bg-slate-950/92 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-20">
+                <div class="text-5xl mb-2 animate-bounce">🎮</div>
+                <h2 id="modalTitle" class="text-2xl font-bold font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-400 mb-2">
+                    ¡A JUGAR!
+                </h2>
+                <p id="modalDesc" class="text-xs sm:text-sm text-slate-300 mb-5 leading-relaxed max-w-[280px]">
+                    Ahora es más fácil: la serpiente <span class="text-cyan-300 font-semibold">atraviesa las paredes</span> y empieza lenta. Come 5 manzanas para subir de nivel.
+                </p>
+                
+                <button onclick="startGame()" class="neon-btn w-full max-w-[240px] py-3 px-6 bg-gradient-to-r from-green-500 to-emerald-600 font-orbitron font-bold text-slate-950 rounded-xl text-base tracking-wider uppercase cursor-pointer active:scale-95">
+                    JUGAR AHORA
+                </button>
+
+                <p class="text-[11px] text-slate-400 mt-4">
+                    💻 <b>PC:</b> WASD o Flechas • 📱 <b>Celular:</b> usa los botones
+                </p>
+            </div>
+        </div>
+
+        <!-- Virtual Touch D-Pad for Mobile -->
+        <div class="w-full max-w-[280px] flex flex-col items-center gap-1 mt-1">
+            <div>
+                <button onclick="handleDirection('UP')" class="dpad-btn w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-bold active:scale-90 transition-transform">
+                    ▲
+                </button>
+            </div>
+            <div class="flex items-center justify-between w-full">
+                <button onclick="handleDirection('LEFT')" class="dpad-btn w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-bold active:scale-90 transition-transform">
+                    ◀️
+                </button>
+                <button onclick="handleDirection('DOWN')" class="dpad-btn w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-bold active:scale-90 transition-transform">
+                    ▼
+                </button>
+                <button onclick="handleDirection('RIGHT')" class="dpad-btn w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-bold active:scale-90 transition-transform">
+                    ▶️
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-[11px] text-slate-500 my-2">
+        Snake Neon Arcade • Atraviesa Paredes • Web Edition
+    </footer>
+
+    <!-- Game Logic Script -->
+    <script>
+        // Game Constants & Config
+        const GRID_SIZE = 20; // 20x20 grid
+        const CANVAS_SIZE = 400; // Standard reference canvas coordinate space
+        const TILE_SIZE = CANVAS_SIZE / GRID_SIZE;
+
+        // Canvas & Context Setup
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = CANVAS_SIZE;
+        canvas.height = CANVAS_SIZE;
+
+        // UI Elements
+        const scoreEl = document.getElementById('score');
+        const recordEl = document.getElementById('record');
+        const levelEl = document.getElementById('level');
+        const overlay = document.getElementById('startOverlay');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDesc = document.getElementById('modalDesc');
+        const btnEasy = document.getElementById('btnEasy');
+        const btnNormal = document.getElementById('btnNormal');
+        const pauseIcon = document.getElementById('pauseIcon');
+        const pauseText = document.getElementById('pauseText');
+
+        // Sound System (Web Audio API)
+        class SoundFX {
+            constructor() {
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playEat() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.1);
+            }
+
+            playLevelUp() {
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.setValueAtTime(600, now + 0.08);
+                osc.frequency.setValueAtTime(800, now + 0.16);
+                osc.frequency.setValueAtTime(1200, now + 0.24);
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(now + 0.35);
+            }
+
+            playGameOver() {
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(80, now + 0.4);
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(now + 0.4);
+            }
+
+            playBeep() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(500, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.05);
+            }
+        }
+
+        const sound = new SoundFX();
+
+        // Game State Variables
+        let snake = [];
+        let direction = 'RIGHT';
+        let nextDirection = 'RIGHT';
+        let apple = { x: 0, y: 0 };
+        let score = 0;
+        let record = parseInt(localStorage.getItem('snake_neon_record')) || 0;
+        let level = 1;
+        let applesEaten = 0;
+        let difficulty = 'easy'; // 'easy' or 'normal'
+        let gameSpeed = 160; // ms per tick
+        let gameInterval = null;
+        let isPaused = false;
+        let isPlaying = false;
+        let particles = [];
+        let floatingTexts = [];
+
+        // Neon Color Palette according to level
+        const levelColors = [
+            { snakeHead: '#00ff88', snakeBody: '#00cc66', apple: '#ff007f', glow: '#00ff88' },
+            { snakeHead: '#00f0ff', snakeBody: '#0099ff', apple: '#ffcc00', glow: '#00f0ff' },
+            { snakeHead: '#ff007f', snakeBody: '#cc0066', apple: '#00ff88', glow: '#ff007f' },
+            { snakeHead: '#ffcc00', snakeBody: '#ff9900', apple: '#00f0ff', glow: '#ffcc00' },
+            { snakeHead: '#a855f7', snakeBody: '#7e22ce', apple: '#00ff88', glow: '#a855f7' }
+        ];
+
+        recordEl.textContent = record;
+
+        // Difficulty Selection
+        function setDifficulty(mode) {
+            if (isPlaying) return;
+            difficulty = mode;
+            sound.init();
+            sound.playBeep();
+            if (mode === 'easy') {
+                btnEasy.className = "px-3 py-1.5 rounded-lg transition-all text-green-400 bg-green-950/60 border border-green-500/50 shadow";
+                btnNormal.className = "px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-cyan-300";
+            } else {
+                btnNormal.className = "px-3 py-1.5 rounded-lg transition-all text-cyan-400 bg-cyan-950/60 border border-cyan-500/50 shadow";
+                btnEasy.className = "px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-green-300";
+            }
+        }
+
+        // Initialize / Start Game
+        function startGame() {
+            sound.init();
+            sound.playBeep();
+
+            // Reset variables
+            snake = [
+                { x: 5, y: 10 },
+                { x: 4, y: 10 },
+                { x: 3, y: 10 }
+            ];
+            direction = 'RIGHT';
+            nextDirection = 'RIGHT';
+            score = 0;
+            level = 1;
+            applesEaten = 0;
+            particles = [];
+            floatingTexts = [];
+            isPaused = false;
+            isPlaying = true;
+
+            // Set initial speed based on difficulty
+            gameSpeed = difficulty === 'easy' ? 170 : 120;
+
+            scoreEl.textContent = score;
+            levelEl.textContent = level;
+            pauseIcon.textContent = "⏸️";
+            pauseText.textContent = "Pausa";
+
+            spawnApple();
+
+            overlay.classList.add('hidden');
+
+            if (gameInterval) clearInterval(gameInterval);
+            gameInterval = setInterval(gameLoop, gameSpeed);
+        }
+
+        // Spawn Apple on Random Empty Tile
+        function spawnApple() {
+            let valid = false;
+            while (!valid) {
+                apple.x = Math.floor(Math.random() * GRID_SIZE);
+                apple.y = Math.floor(Math.random() * GRID_SIZE);
+                valid = !snake.some(segment => segment.x === apple.x && segment.y === apple.y);
+            }
+        }
+
+        // Change Direction Safety Wrapper
+        function handleDirection(dir) {
+            if (isPaused || !isPlaying) return;
+            if (dir === 'UP' && direction !== 'DOWN') nextDirection = 'UP';
+            if (dir === 'DOWN' && direction !== 'UP') nextDirection = 'DOWN';
+            if (dir === 'LEFT' && direction !== 'RIGHT') nextDirection = 'LEFT';
+            if (dir === 'RIGHT' && direction !== 'LEFT') nextDirection = 'RIGHT';
+        }
+
+        // Pause Game Toggle
+        function togglePause() {
+            if (!isPlaying) return;
+            sound.init();
+            sound.playBeep();
+            isPaused = !isPaused;
+
+            if (isPaused) {
+                pauseIcon.textContent = "▶️";
+                pauseText.textContent = "Reanudar";
+            } else {
+                pauseIcon.textContent = "⏸️";
+                pauseText.textContent = "Pausa";
+            }
+        }
+
+        // Core Game Loop
+        function gameLoop() {
+            if (isPaused || !isPlaying) return;
+
+            direction = nextDirection;
+            let head = { ...snake[0] };
+
+            // Movement logic
+            if (direction === 'UP') head.y -= 1;
+            if (direction === 'DOWN') head.y += 1;
+            if (direction === 'LEFT') head.x -= 1;
+            if (direction === 'RIGHT') head.x += 1;
+
+            // WALL WRAPPING MECHANIC ("Atraviesa Paredes")
+            if (head.x < 0) head.x = GRID_SIZE - 1;
+            if (head.x >= GRID_SIZE) head.x = 0;
+            if (head.y < 0) head.y = GRID_SIZE - 1;
+            if (head.y >= GRID_SIZE) head.y = 0;
+
+            // Self-Collision Check (Game Over)
+            if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                gameOver();
+                return;
+            }
+
+            // Move Snake Head
+            snake.unshift(head);
+
+            // Eat Apple
+            if (head.x === apple.x && head.y === apple.y) {
+                score += 100;
+                applesEaten += 1;
+                scoreEl.textContent = score;
+
+                if (score > record) {
+                    record = score;
+                    recordEl.textContent = record;
+                    localStorage.setItem('snake_neon_record', record);
+                }
+
+                sound.playEat();
+                createExplosion(
+                    apple.x * TILE_SIZE + TILE_SIZE / 2, 
+                    apple.y * TILE_SIZE + TILE_SIZE / 2, 
+                    levelColors[(level - 1) % levelColors.length].apple
+                );
+                addFloatingText("+100", head.x * TILE_SIZE, head.y * TILE_SIZE);
+
+                // Level Up every 5 apples
+                if (applesEaten % 5 === 0) {
+                    level++;
+                    levelEl.textContent = level;
+                    sound.playLevelUp();
+                    
+                    // Increase speed up to speed limit
+                    if (gameSpeed > 70) {
+                        gameSpeed -= (difficulty === 'easy' ? 12 : 10);
+                        clearInterval(gameInterval);
+                        gameInterval = setInterval(gameLoop, gameSpeed);
+                    }
+
+                    addFloatingText("¡NIVEL " + level + "!", CANVAS_SIZE / 2 - 40, CANVAS_SIZE / 2, "#ff007f", 20);
+                }
+
+                spawnApple();
+            } else {
+                // Remove tail if no apple eaten
+                snake.pop();
+            }
+
+            draw();
+        }
+
+        // Particle FX
+        function createExplosion(x, y, color) {
+            for (let i = 0; i < 15; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: (Math.random() - 0.5) * 6,
+                    radius: Math.random() * 3 + 1,
+                    color: color,
+                    alpha: 1,
+                    life: 20
+                });
+            }
+        }
+
+        function addFloatingText(text, x, y, color = "#00ff88", size = 14) {
+            floatingTexts.push({
+                text: text,
+                x: x,
+                y: y,
+                alpha: 1,
+                color: color,
+                size: size
+            });
+        }
+
+        // Render Canvas
+        function draw() {
+            const theme = levelColors[(level - 1) % levelColors.length];
+
+            // Background Grid Render
+            ctx.fillStyle = '#070814';
+            ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+
+            // Subtle Grid Lines
+            ctx.strokeStyle = 'rgba(0, 240, 255, 0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < CANVAS_SIZE; i += TILE_SIZE) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, CANVAS_SIZE);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(CANVAS_SIZE, i);
+                ctx.stroke();
+            }
+
+            // Draw Apple with Pulsing Neon Glow
+            const appleX = apple.x * TILE_SIZE + TILE_SIZE / 2;
+            const appleY = apple.y * TILE_SIZE + TILE_SIZE / 2;
+            const pulse = Math.sin(Date.now() / 150) * 2;
+
+            ctx.save();
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = theme.apple;
+            ctx.fillStyle = theme.apple;
+            ctx.beginPath();
+            ctx.arc(appleX, appleY, (TILE_SIZE / 2 - 3) + pulse, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            // Draw Snake
+            snake.forEach((segment, index) => {
+                const sx = segment.x * TILE_SIZE;
+                const sy = segment.y * TILE_SIZE;
+
+                ctx.save();
+                if (index === 0) {
+                    // Head
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = theme.snakeHead;
+                    ctx.fillStyle = theme.snakeHead;
+                    ctx.beginPath();
+                    ctx.roundRect(sx + 1, sy + 1, TILE_SIZE - 2, TILE_SIZE - 2, 6);
+                    ctx.fill();
+
+                    // Eyes
+                    ctx.fillStyle = '#05050d';
+                    let eyeX1 = sx + 5, eyeY1 = sy + 5, eyeX2 = sx + 12, eyeY2 = sy + 5;
+                    if (direction === 'DOWN') { eyeY1 = sy + 12; eyeY2 = sy + 12; }
+                    if (direction === 'LEFT') { eyeX1 = sx + 5; eyeX2 = sx + 5; eyeY2 = sy + 12; }
+                    if (direction === 'RIGHT') { eyeX1 = sx + 12; eyeX2 = sx + 12; eyeY2 = sy + 12; }
+
+                    ctx.fillRect(eyeX1, eyeY1, 3, 3);
+                    ctx.fillRect(eyeX2, eyeY2, 3, 3);
+                } else {
+                    // Body
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = theme.snakeBody;
+                    ctx.fillStyle = theme.snakeBody;
+                    ctx.beginPath();
+                    ctx.roundRect(sx + 2, sy + 2, TILE_SIZE - 4, TILE_SIZE - 4, 4);
+                    ctx.fill();
+                }
+                ctx.restore();
+            });
+
+            // Particles Update & Draw
+            particles.forEach((p, index) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= 0.05;
+
+                if (p.alpha <= 0) {
+                    particles.splice(index, 1);
+                } else {
+                    ctx.save();
+                    ctx.globalAlpha = p.alpha;
+                    ctx.fillStyle = p.color;
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            });
+
+            // Floating Texts Update & Draw
+            floatingTexts.forEach((ft, index) => {
+                ft.y -= 0.8;
+                ft.alpha -= 0.02;
+
+                if (ft.alpha <= 0) {
+                    floatingTexts.splice(index, 1);
+                } else {
+                    ctx.save();
+                    ctx.globalAlpha = ft.alpha;
+                    ctx.fillStyle = ft.color;
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = ft.color;
+                    ctx.font = `bold ${ft.size}px Orbitron`;
+                    ctx.fillText(ft.text, ft.x, ft.y);
+                    ctx.restore();
+                }
+            });
+        }
+
+        // Game Over Handler
+        function gameOver() {
+            isPlaying = false;
+            clearInterval(gameInterval);
+            sound.playGameOver();
+
+            modalTitle.textContent = "¡GAME OVER!";
+            modalTitle.className = "text-2xl font-bold font-orbitron text-pink-500 neon-text-pink mb-2";
+            modalDesc.innerHTML = `Puntuación Final: <b class="text-green-400 text-base">${score}</b><br>Nivel alcanzado: <b class="text-pink-400 text-base">${level}</b>`;
+            overlay.classList.remove('hidden');
+        }
+
+        // Keyboard Controls Setup
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (key === 'arrowup' || key === 'w') handleDirection('UP');
+            if (key === 'arrowdown' || key === 's') handleDirection('DOWN');
+            if (key === 'arrowleft' || key === 'a') handleDirection('LEFT');
+            if (key === 'arrowright' || key === 'd') handleDirection('RIGHT');
+            if (key === ' ' || key === 'p') togglePause();
+        });
+
+        // Touch Swipe Gestures Support
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        canvas.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, { passive: true });
+
+        canvas.addEventListener('touchend', (e) => {
+            let touchEndX = e.changedTouches[0].screenX;
+            let touchEndY = e.changedTouches[0].screenY;
+            let dx = touchEndX - touchStartX;
+            let dy = touchEndY - touchStartY;
+
+            if (Math.abs(dx) > Math.abs(dy)) {
+                if (dx > 30) handleDirection('RIGHT');
+                else if (dx < -30) handleDirection('LEFT');
+            } else {
+                if (dy > 30) handleDirection('DOWN');
+                else if (dy < -30) handleDirection('UP');
+            }
+        }, { passive: true });
+
+        // Initial Idle Draw
+        draw();
+    </script>
 </body>
 </html>
