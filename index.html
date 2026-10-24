@@ -1,3 +1,71 @@
+<!-- Procteccion de codigos -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+
+
+<!-- Evitar selección de texto -->
+<style>
+    body {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+</style>
+
+</head>
+<body>
+
+
+<script>
+// ===========================
+// 1. DESACTIVAR CLICK DERECHO
+// ===========================
+document.addEventListener("contextmenu", function(e){
+    e.preventDefault();
+});
+
+// ===========================
+// 2. DESACTIVAR TECLAS DE INSPECTOR
+// ===========================
+document.onkeydown = function(e) {
+    if (e.keyCode === 123) return false;        // F12
+    if (e.ctrlKey && e.shiftKey && e.keyCode === 73) return false; // CTRL+SHIFT+I
+    if (e.ctrlKey && e.shiftKey && e.keyCode === 74) return false; // CTRL+SHIFT+J
+    if (e.ctrlKey && e.keyCode === 85) return false; // CTRL+U
+};
+
+// ===========================
+// 3. DESACTIVAR ARRASTRAR CONTENIDO
+// ===========================
+document.addEventListener("dragstart", function(e){
+    e.preventDefault();
+});
+
+// ===========================
+// 4. DESACTIVAR SELECCIÓN DE TEXTO JS EXTRA
+// ===========================
+document.onselectstart = function() { return false; }
+
+// ===========================
+// 5. OCULTAR CODIGO HTML OFUSCANDOLO (NIVEL BÁSICO)
+// ===========================
+(function(){
+    const html = document.documentElement.innerHTML;
+    const encoded = btoa(unescape(encodeURIComponent(html)));
+    console.log("Código protegido (Base64):", encoded);
+})();
+</script>
+
+</body>
+</html>
+
+
+
+<!-- Procteccion de codigos -->
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
